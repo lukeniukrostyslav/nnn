@@ -20,8 +20,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Playwright Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Start static server
         run: |
@@ -29,7 +32,7 @@ jobs:
           echo $! > /tmp/nnn-http.pid
 
       - name: Run B15.1 clean-start test
-        run: npx --yes playwright@1.55.0 test qa/b15-clean-start.spec.mjs
+        run: node qa/b15-clean-start.spec.mjs
 
       - name: Stop static server
         if: always()
