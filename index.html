@@ -35,8 +35,9 @@ body.modal-open,body.menu-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
-body.dark-mode .item,body.dark-mode .modal,body.dark-mode .field input,body.dark-mode .field select,body.dark-mode .field textarea,body.dark-mode .btn{background:#1a2334;color:#eef2f8;border-color:#2b374c}body.dark-mode .note{background:#151e30;border-color:#2b374c;color:#b7c0d1}body.dark-mode .empty{border-color:#34435c}body.dark-mode .cal-day{background:#1a2334;color:#eef2f8;border-color:#2b374c}body.dark-mode .progress,body.dark-mode .bar{background:#2b374c}</style></head>
+body.dark-mode .item,body.dark-mode .modal,body.dark-mode .field input,body.dark-mode .field select,body.dark-mode .field textarea,body.dark-mode .btn{background:#1a2334;color:#eef2f8;border-color:#2b374c}body.dark-mode .note{background:#151e30;border-color:#2b374c;color:#b7c0d1}body.dark-mode .empty{border-color:#34435c}body.dark-mode .cal-day{background:#1a2334;color:#eef2f8;border-color:#2b374c}body.dark-mode .progress,body.dark-mode .bar{background:#2b374c} .skip-link{position:fixed;left:12px;top:12px;transform:translateY(-150%);z-index:200;background:#fff;color:#182033;padding:10px 14px;border-radius:10px;border:2px solid #6258f5;font-weight:800;text-decoration:none}.skip-link:focus{transform:none}</style></head>
 <body>
+<a class="skip-link" href="#main-content">Перейти к основному содержимому</a>
 <div class="app">
 <aside class="side" id="side">
 <div class="brand"><div class="logo">♛</div><div><b>Life Commander</b><small>Personal Life OS</small></div></div>
@@ -59,7 +60,7 @@ body.dark-mode .item,body.dark-mode .modal,body.dark-mode .field input,body.dark
 <div class="side-foot"><div class="ring"><span>68%</span></div><b id="dayMessage">Отличный день!</b><small id="dayProgress">Ваш прогресс сегодня</small></div>
 </aside>
 <div class="menu-overlay" id="overlay"></div>
-<main class="main">
+<main class="main" id="main-content" tabindex="-1">
 <section class="hero">
 <div class="top"><input class="search" id="search" placeholder="Поиск задач, заметок, проектов..."><div class="tools"><button type="button" class="tool menu-toggle" id="menuBtn" aria-label="Открыть меню">☰</button><button type="button" class="tool" id="themeBtn" aria-label="Переключить тему">☼</button><button type="button" class="tool" id="noticeBtn" aria-label="Уведомления">♧</button><select class="select" id="lang"><option value="ru">RU</option><option value="en">EN</option><option value="es">ES</option><option value="de">DE</option><option value="fr">FR</option></select></div></div>
 <div class="hero-copy"><div class="eyebrow" id="heroDate">Понедельник, 29 сентября 2025</div><h1 id="heroTitle">Доброе утро, Ростислав</h1><p id="heroSub">Маленькие шаги каждый день приводят к большим результатам.</p></div>
