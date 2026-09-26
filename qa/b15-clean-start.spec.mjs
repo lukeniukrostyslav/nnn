@@ -10,7 +10,7 @@ const failedRequests = [];
 page.on("console", msg => {
   if (msg.type() === "error") consoleErrors.push(msg.text());
 });
-page.on("pageerror", error => pageErrors.push(error.message));
+page.on("pageerror", error => pageErrors.push({ message: error.message, stack: error.stack }));
 page.on("requestfailed", request => {
   failedRequests.push({ url: request.url(), failure: request.failure()?.errorText || "unknown" });
 });
