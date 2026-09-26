@@ -202,7 +202,7 @@ if(a==="close-modal"){closeModal();return}
 if(a==="save-modal"){saveModal();return}
 toast(t("saved"))
 }
-function detail(a){const [type,id]=a.split(":");const x=db[type==="goal"?"goals":type==="project"?"projects":"routines"].find(v=>v.id===id);if(!x)return;modal("details",x)}
+function detail(a){const sep=a.indexOf(":");if(sep<1)return;const type=a.slice(0,sep),id=a.slice(sep+1),list=type==="goal"?"goals":type==="project"?"projects":"routines";const x=db[list].find(v=>v.id===id);if(!x)return;modal("details",x)}
 function editEntityModal(type,x){
 let fields="";
 if(type==="edit-goal")fields=`<div class="field"><label>${t("title")}</label><input id="mTitle" required value="${esc(x.title||"")}"></div><div class="field"><label>${t("description")}</label><textarea id="mDesc">${esc(x.description||"")}</textarea></div><div class="field"><label>${t("progress")} (%)</label><input id="mProgress" type="number" min="0" max="100" step="1" value="${esc(x.progress??0)}"></div><div class="field"><label>${t("due")}</label><input id="mDeadline" type="date" value="${esc(x.deadline||"")}"></div>`;
@@ -224,7 +224,7 @@ function saveModal(){
 const modalEl=document.getElementById("modal"),type=modalEl.dataset.type;
 if(type==="task-details"){
 const x=db.tasks.find(v=>v.id===modalEl.dataset.id);
-if(x){x.title=document.getElementById("mTitle").value.trim();if(!x.title)return toast(t("requiredTitle"));x.description=document.getElementById("mDesc").value.trim();x.time=document.getElementById("mTime").value;x.category=document.getElementById("mCategory").value.trim();x.due=document.getElementById("mDue").value;if(x.due&&!validDate(x.due))return toast(t("invalidDate"));x.reminder=document.getElementById("mReminder").value;if(x.reminder&&!/^\\d{4}-\\d{2}-\\d{2}T([01]\\d|2[0-3]):[0-5]\\d$/.test(x.reminder))return toast(t("invalidDate"));x.repeat=document.getElementById("mRepeat").value;x.priority=Number(document.getElementById("mPriority").value||4);persist();closeModal();toast(t("saved"));render()}return}
+if(x){x.title=document.getElementById("mTitle").value.trim();if(!x.title)return toast(t("requiredTitle"));x.description=document.getElementById("mDesc").value.trim();x.time=document.getElementById("mTime").value;x.category=document.getElementById("mCategory").value.trim();x.due=document.getElementById("mDue").value;if(x.due&&!validDate(x.due))return toast(t("invalidDate"));x.reminder=document.getElementById("mReminder").value;if(x.reminder&&(!/^\\d{4}-\\d{2}-\\d{2}T([01]\\d|2[0-3]):[0-5]\\d$/.test(x.reminder)||!validDate(x.reminder.slice(0,10))))return toast(t("invalidDate"));x.repeat=document.getElementById("mRepeat").value;x.priority=Number(document.getElementById("mPriority").value||4);persist();closeModal();toast(t("saved"));render()}return}
 if(type==="edit-goal"){
 const x=db.goals.find(v=>v.id===modalEl.dataset.id);if(!x)return;
 if(!document.getElementById("mTitle").value.trim())return toast(t("requiredTitle"));
