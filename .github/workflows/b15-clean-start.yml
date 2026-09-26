@@ -1,0 +1,37 @@
+name: B15.1 Clean Start QA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clean-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+
+      - name: Start static server
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/nnn-http.log 2>&1 &
+          echo $! > /tmp/nnn-http.pid
+
+      - name: Run B15.1 clean-start test
+        run: npx --yes playwright@1.55.0 test qa/b15-clean-start.spec.mjs
+
+      - name: Stop static server
+        if: always()
+        run: |
+          if [ -f /tmp/nnn-http.pid ]; then kill $(cat /tmp/nnn-http.pid) || true; fi
