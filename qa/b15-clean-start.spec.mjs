@@ -5,10 +5,15 @@ const context = await browser.newContext();
 const page = await context.newPage();
 
 const consoleErrors = [];
+const pageErrors = [];
+const failedRequests = [];
 page.on("console", msg => {
   if (msg.type() === "error") consoleErrors.push(msg.text());
 });
-page.on("pageerror", error => consoleErrors.push(error.message));
+page.on("pageerror", error => pageErrors.push(error.message));
+page.on("requestfailed", request => {
+  failedRequests.push({ url: request.url(), failure: request.failure()?.errorText || "unknown" });
+});
 
 try {
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
@@ -39,7 +44,10 @@ try {
   if (snapshot.visibleDemoStrings.length) {
     throw new Error("Demo strings are visible: " + snapshot.visibleDemoStrings.join(", "));
   }
-  if (consoleErrors.length) throw new Error("Browser console errors: " + consoleErrors.join(" | "));
+
+  if (consoleErrors.length || pageErrors.length || failedRequests.length) {
+    throw new Error(JSON.stringify({ consoleErrors, pageErrors, failedRequests }));
+  }
 
   console.log(JSON.stringify({ ok: true, snapshot }));
 } finally {
