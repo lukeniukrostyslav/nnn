@@ -4,9 +4,22 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext();
 const page = await context.newPage();
 
+await page.addInitScript(() => {
+  window.__startupErrors = [];
+  window.addEventListener("error", event => {
+    window.__startupErrors.push({
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno
+    });
+  });
+});
+
 const consoleErrors = [];
 const pageErrors = [];
 const failedRequests = [];
+
 page.on("console", msg => {
   if (msg.type() === "error") consoleErrors.push(msg.text());
 });
@@ -39,14 +52,15 @@ try {
     };
   });
 
+  const startupErrors = await page.evaluate(() => window.__startupErrors || []);
   const nonEmpty = Object.entries(snapshot.collections).filter(([, count]) => count !== 0);
+
   if (nonEmpty.length) throw new Error("Fresh store is not empty: " + JSON.stringify(nonEmpty));
   if (snapshot.visibleDemoStrings.length) {
     throw new Error("Demo strings are visible: " + snapshot.visibleDemoStrings.join(", "));
   }
-
-  if (consoleErrors.length || pageErrors.length || failedRequests.length) {
-    throw new Error(JSON.stringify({ consoleErrors, pageErrors, failedRequests }));
+  if (consoleErrors.length || pageErrors.length || failedRequests.length || startupErrors.length) {
+    throw new Error(JSON.stringify({ consoleErrors, pageErrors, failedRequests, startupErrors }));
   }
 
   console.log(JSON.stringify({ ok: true, snapshot }));
