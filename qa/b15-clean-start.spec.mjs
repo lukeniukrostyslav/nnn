@@ -1,20 +1,23 @@
-import { test, expect } from "@playwright/test";
+import { chromium } from "playwright";
 
-test.use({
-  baseURL: "http://127.0.0.1:4173",
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext();
+const page = await context.newPage();
+
+const consoleErrors = [];
+page.on("console", msg => {
+  if (msg.type() === "error") consoleErrors.push(msg.text());
 });
+page.on("pageerror", error => consoleErrors.push(error.message));
 
-test("B15.1: fresh browser starts with clean local data", async ({ page }) => {
-  const consoleErrors = [];
-  page.on("console", msg => {
-    if (msg.type() === "error") consoleErrors.push(msg.text());
-  });
-  page.on("pageerror", error => consoleErrors.push(error.message));
+try {
+  await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
 
-  await page.goto("/", { waitUntil: "networkidle" });
+  const bodyText = await page.locator("body").innerText();
+  if (!bodyText.includes("Life Commander")) throw new Error("Life Commander shell is not visible");
 
-  await expect(page.locator("body")).toContainText("Life Commander");
-  await expect(page.locator("#main-content")).toBeVisible();
+  const main = page.locator("#main-content");
+  if (!(await main.isVisible())) throw new Error("#main-content is not visible");
 
   const snapshot = await page.evaluate(() => {
     const raw = localStorage.getItem("life-commander:v2");
@@ -31,7 +34,14 @@ test("B15.1: fresh browser starts with clean local data", async ({ page }) => {
     };
   });
 
-  expect(Object.values(snapshot.collections).every(count => count === 0)).toBeTruthy();
-  expect(snapshot.visibleDemoStrings).toEqual([]);
-  expect(consoleErrors).toEqual([]);
-});
+  const nonEmpty = Object.entries(snapshot.collections).filter(([, count]) => count !== 0);
+  if (nonEmpty.length) throw new Error("Fresh store is not empty: " + JSON.stringify(nonEmpty));
+  if (snapshot.visibleDemoStrings.length) {
+    throw new Error("Demo strings are visible: " + snapshot.visibleDemoStrings.join(", "));
+  }
+  if (consoleErrors.length) throw new Error("Browser console errors: " + consoleErrors.join(" | "));
+
+  console.log(JSON.stringify({ ok: true, snapshot }));
+} finally {
+  await browser.close();
+}
